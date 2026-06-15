@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>You're in — Recurr</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0D1117;
+    --surface: #161B22;
+    --surface2: #1C2333;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --green: #00E676;
+    --green-dim: rgba(0,230,118,0.12);
+    --green-dim2: rgba(0,230,118,0.2);
+    --text: #E6EDF3;
+    --text2: #8B949E;
+    --text3: #555F6E;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem 1.5rem;
+  }
+
+  /* ---- CONFETTI CANVAS ---- */
+  #confetti {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ---- CARD ---- */
+  .card {
+    position: relative;
+    z-index: 1;
+    background: var(--surface);
+    border: 0.5px solid var(--border2);
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    width: 100%;
+    max-width: 540px;
+    text-align: center;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(0,230,118,0.15);
+  }
+
+  /* ---- CHECK ANIMATION ---- */
+  .check-wrap {
+    width: 80px; height: 80px;
+    background: var(--green-dim2);
+    border: 2px solid rgba(0,230,118,0.4);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.75rem;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .check-icon {
+    font-size: 2.2rem;
+    animation: fadeIn 0.3s ease 0.4s both;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* ---- HEADING ---- */
+  .heading {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.75px;
+    margin-bottom: 0.5rem;
+    animation: slideUp 0.4s ease 0.2s both;
+  }
+  .heading span { color: var(--green); }
+  .subheading {
+    font-size: 1rem;
+    color: var(--text2);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+    animation: slideUp 0.4s ease 0.3s both;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(12px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ---- DIVIDER ---- */
+  .divider {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 1.75rem 0;
+  }
+
+  /* ---- ACCESS BOX ---- */
+  .access-box {
+    background: var(--green-dim);
+    border: 0.5px solid rgba(0,230,118,0.3);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    animation: slideUp 0.4s ease 0.4s both;
+  }
+  .access-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ---- BUTTONS ---- */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 16px 28px;
+    background: var(--green);
+    color: #000;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    letter-spacing: -0.2px;
+  }
+  .btn-primary:hover {
+    background: #00c864;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,230,118,0.3);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 12px 20px;
+    background: transparent;
+    color: var(--text2);
+    font-size: 0.88rem;
+    font-weight: 500;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    margin-top: 10px;
+  }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+
+  /* ---- STEPS ---- */
+  .steps {
+    text-align: left;
+    animation: slideUp 0.4s ease 0.5s both;
+  }
+  .step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .step:last-child { margin-bottom: 0; }
+  .step-num {
+    width: 24px; height: 24px;
+    background: var(--surface2);
+    border: 0.5px solid var(--border2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 800;
+    color: var(--green);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text {
+    font-size: 0.88rem;
+    color: var(--text2);
+    line-height: 1.55;
+  }
+  .step-text strong { color: var(--text); font-weight: 600; }
+
+  /* ---- BOOKMARK NOTICE ---- */
+  .bookmark-notice {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-top: 1.5rem;
+    text-align: left;
+    animation: slideUp 0.4s ease 0.6s both;
+  }
+  .bookmark-notice .icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .bookmark-notice p { font-size: 0.82rem; color: var(--text2); line-height: 1.55; }
+  .bookmark-notice strong { color: var(--text); }
+
+  /* ---- LOGO ---- */
+  .logo {
+    position: fixed;
+    top: 1.5rem; left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    z-index: 10;
+    text-decoration: none;
+  }
+  .logo span { color: var(--green); }
+
+  /* ---- RECEIPT LINE ---- */
+  .receipt {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    padding: 6px 0;
+  }
+  .receipt .item { color: var(--text2); }
+  .receipt .amount {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  @media (max-width: 540px) {
+    .card { padding: 2rem 1.5rem; }
+    .heading { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti"></canvas>
+
+<a class="logo" href="index.html">Recurr<span>.</span></a>
+
+<div class="card">
+
+  <div class="check-wrap">
+    <span class="check-icon">✓</span>
+  </div>
+
+  <h1 class="heading">You're <span>unlocked</span></h1>
+  <p class="subheading">Payment confirmed. All 6 negotiation playbooks are ready — with scripts, phone numbers, and your rights spelled out.</p>
+
+  <div class="receipt">
+    <span class="item">Recurr Negotiation Playbooks</span>
+    <span class="amount">$39.00</span>
+  </div>
+  <div class="receipt">
+    <span class="item">Access type</span>
+    <span style="font-size:0.82rem; color: var(--text2);">Lifetime · one-time</span>
+  </div>
+
+  <hr class="divider" />
+
+  <div class="access-box">
+    <div class="access-label">✦ Your access link</div>
+    <a class="btn-primary" href="index.html?unlocked=true">
+      Open my playbooks →
+    </a>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><strong>Click "Open my playbooks"</strong> above — your access unlocks automatically, no login needed.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><strong>Bookmark the app</strong> once it opens so you can return anytime from this device.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><strong>On a new device?</strong> Come back to this page and click the link above — it always works.</div>
+    </div>
+  </div>
+
+  <div class="bookmark-notice">
+    <span class="icon">🔖</span>
+    <p><strong>Save this page.</strong> This thank you page is your permanent access link. Bookmark it or save the URL — if you ever clear your browser or switch devices, come back here and click "Open my playbooks" to unlock again.</p>
+  </div>
+
+  <a class="btn-ghost" href="index.html">← Back to Recurr home</a>
+
+</div>
+
+<script>
+  // ── Confetti burst ──────────────────────────────────────────────
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  const COLORS = ['#00E676','#00c864','#ffffff','#448AFF','#FFB300','#AB47BC'];
+  const pieces = [];
+  const COUNT = 120;
+
+  for (let i = 0; i < COUNT; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: -20 - Math.random() * 200,
+      w: 6 + Math.random() * 8,
+      h: 10 + Math.random() * 6,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      rot: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.15,
+      vx: (Math.random() - 0.5) * 3,
+      vy: 2 + Math.random() * 4,
+      opacity: 1,
+    });
+  }
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    pieces.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.rotSpeed;
+      if (p.y > canvas.height * 0.7) p.opacity -= 0.018;
+      if (p.opacity <= 0) return;
+      alive = true;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    frame++;
+    if (alive && frame < 400) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  setTimeout(() => requestAnimationFrame(draw), 300);
+</script>
+
+</body>
+</html>
